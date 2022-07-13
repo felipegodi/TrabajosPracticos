@@ -1,4 +1,4 @@
-global INPUT "C:\Users\felip\Documents\UdeSA\Maestría\Herramientas computacionales\Python\Scrapping"
+global INPUT "C:\Users\felip\Documents\UdeSA\Maestría\Herramientas computacionales\TrabajosPracticos\TP 3"
 
 ** Datos zipcode
 edit
