@@ -4,12 +4,12 @@ global INPUT "C:\Users\felip\Documents\UdeSA\Maestría\Herramientas computaciona
 edit
 * Paste ZIP from https://www.zipcodestogo.com/Maryland/
 drop zipcodemap
-bys city: gen n=_n
+bys city (county): gen n=_n
 keep if n==1
 drop n
 compress
 save "$INPUT/MD_zipcodes.dta", replace
-
+use "$INPUT/MD_zipcodes.dta", clear
 ** Datos crimen que bajamos de socrata
 import delimited "$INPUT/crime.csv", clear
 keep if year==2015
