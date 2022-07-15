@@ -9,7 +9,7 @@ keep if n==1
 drop n
 compress
 save "$INPUT/MD_zipcodes.dta", replace
-use "$INPUT/MD_zipcodes.dta", clear
+
 ** Datos crimen que bajamos de socrata
 import delimited "$INPUT/crime.csv", clear
 keep if year==2015
