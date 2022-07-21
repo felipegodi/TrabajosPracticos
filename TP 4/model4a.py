@@ -1,10 +1,6 @@
-"""
-Model exported as python.
-Name : model4a
-Group : 
-With QGIS : 32208
-"""
+# Generar el número de idiomas en cada país
 
+#Importo los paquetes necesarios
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -26,45 +22,40 @@ class Model4a(QgsProcessingAlgorithm):
         results = {}
         outputs = {}
 
-        # Statistics by categories
+        #######################################################################
+        # Fix geometries - wlds
+        #######################################################################
+        # Arreglo las geometrías del shapefile que generamos en el model2
         alg_params = {
-            'CATEGORIES_FIELD_NAME': ['ADMIN'],
-            'INPUT': 'Intersection_75316422_2fb9_42c3_ae7f_cc3bace9d9aa',
-            'OUTPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/output/languages_by_country.csv',
-            'VALUES_FIELD_NAME': '',
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['StatisticsByCategories'] = processing.run('qgis:statisticsbycategories', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(1)
-        if feedback.isCanceled():
-            return {}
-
-        # Fix geometries - wlds 
-        alg_params = {
-            'INPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/output/clean.shp',
+            'INPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/output/clean.shp',
             'OUTPUT': parameters['Fixgeo_wlds']
         }
         outputs['FixGeometriesWlds'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results['Fixgeo_wlds'] = outputs['FixGeometriesWlds']['OUTPUT']
 
-        feedback.setCurrentStep(2)
+        feedback.setCurrentStep(1)
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Fix geometries - countries
+        #######################################################################
+        # Arreglo las geometrías del shapefile sobre países
         alg_params = {
-            'INPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/input/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp',
+            'INPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/Input/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp',
             'OUTPUT': parameters['Fixgeo_countries']
         }
         outputs['FixGeometriesCountries'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results['Fixgeo_countries'] = outputs['FixGeometriesCountries']['OUTPUT']
 
-        feedback.setCurrentStep(3)
+        feedback.setCurrentStep(2)
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Intersection
+        #######################################################################
+        # Intersección entre los dos shps de countries y wlds
         alg_params = {
             'INPUT': outputs['FixGeometriesWlds']['OUTPUT'],
             'INPUT_FIELDS': ['GID'],
@@ -75,6 +66,23 @@ class Model4a(QgsProcessingAlgorithm):
         }
         outputs['Intersection'] = processing.run('native:intersection', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results['Intersection'] = outputs['Intersection']['OUTPUT']
+
+        feedback.setCurrentStep(3)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Statistics by categories
+        #######################################################################
+        # Generar el número de idiomas para cada país y exportarlo como un csv
+        alg_params = {
+            'CATEGORIES_FIELD_NAME': ['ADMIN'],
+            'INPUT': outputs['Intersection']['OUTPUT'],
+            'OUTPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/output/languages_by_country.csv',
+            'VALUES_FIELD_NAME': '',
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+        }
+        outputs['StatisticsByCategories'] = processing.run('qgis:statisticsbycategories', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
     def name(self):

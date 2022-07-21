@@ -22,7 +22,7 @@ class Model2(QgsProcessingAlgorithm):
         #######################################################################
         # Warp (reproject)
         #######################################################################
-        # Proyectar el raster "hdr.adf" en WGS 84
+        # Proyectar el raster "hdr.adf"
         alg_params = {
             'DATA_TYPE': 0,  # Use Input Layer Data Type
             'EXTRA': '',
