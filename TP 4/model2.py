@@ -1,10 +1,4 @@
-"""
-Model exported as python.
-Name : model2
-Group : 
-With QGIS : 32208
-"""
-
+# Importo los paquetes necesarios para model2
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -28,6 +22,7 @@ class Model2(QgsProcessingAlgorithm):
         #######################################################################
         # Warp (reproject)
         #######################################################################
+        # Proyectar el raster "hdr.adf" en WGS 84
         alg_params = {
             'DATA_TYPE': 0,  # Use Input Layer Data Type
             'EXTRA': '',
@@ -53,6 +48,7 @@ class Model2(QgsProcessingAlgorithm):
         #######################################################################
         # Extract projection
         #######################################################################
+        # Crear una proyección permanente del raster
         alg_params = {
             'INPUT': outputs['WarpReproject']['OUTPUT'],
             'PRJ_FILE_CREATE': True

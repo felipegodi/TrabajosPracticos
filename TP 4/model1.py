@@ -1,10 +1,4 @@
-"""
-Model exported as python.
-Name : model1
-Group : 
-With QGIS : 32208
-"""
-
+#Importo los paquetes necesarios para model1
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -28,8 +22,12 @@ class Model1(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(6, model_feedback)
         results = {}
         outputs = {}
-
+        
+        #######################################################################
         # Feature filter
+        #######################################################################
+        # Selecciono solo a las observaciones que tienen menos de 11 caracteres
+        # Esto no va después de crear length?
         alg_params = {
             'INPUT': 'Calculated_44855414_7d2b_42b4_abe3_b40f31f9bd4c',
             'OUTPUT_menor_a_11': parameters['Output_menor_a_11']
@@ -41,7 +39,11 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Field calculator
+        #######################################################################
+        # Creo una columna con el largo de la columna "NAME_PROP" solo para 
+        # los que tienen menos de 11 caracteres
         alg_params = {
             'FIELD_LENGTH': 2,
             'FIELD_NAME': 'length',
@@ -57,8 +59,11 @@ class Model1(QgsProcessingAlgorithm):
         feedback.setCurrentStep(2)
         if feedback.isCanceled():
             return {}
-
+        
+        #######################################################################
         # Fix geometries
+        #######################################################################
+        # Arreglar la geometrías para procesar el shapefile
         alg_params = {
             'INPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/input/langa/langa.shp',
             'OUTPUT': parameters['Fix_geo']
@@ -70,7 +75,10 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Add autoincremental field
+        #######################################################################
+        # Le creo un ID para cada país
         alg_params = {
             'FIELD_NAME': 'GID',
             'GROUP_FIELDS': [''],
@@ -89,7 +97,10 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Drop field(s)
+        #######################################################################
+        # Dropeo columnas que no voy a usar
         alg_params = {
             'COLUMN': ['ID_ISO_A3','ID_ISO_A2','ID_FIPS','NAM_LABEL','NAME_PROP','NAME2','NAM_ANSI','CNT','C1','POP','LMP_POP1','G','LMP_CLASS','FAMILYPROP','FAMILY','langpc_km2','length'],
             'INPUT': 'Calculated_f9812dca_8e69_41df_bef2_fbb13213c1a3',
@@ -102,7 +113,11 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Field calculator clone
+        #######################################################################
+        # Creo la columna lnm con "NAME_PROP" solo para las observaciones que
+        #tienen menos de 11 caracteres
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'lnm',
