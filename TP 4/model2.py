@@ -1,3 +1,4 @@
+# Código para preparar el raster de idoneidad agrícola.
 # Importo los paquetes necesarios para model2
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
@@ -48,7 +49,8 @@ class Model2(QgsProcessingAlgorithm):
         #######################################################################
         # Extract projection
         #######################################################################
-        # Crear una proyección permanente del raster
+        # Crear una proyección permanente del raster y ya tener disponible
+        # el raster
         alg_params = {
             'INPUT': outputs['WarpReproject']['OUTPUT'],
             'PRJ_FILE_CREATE': True
