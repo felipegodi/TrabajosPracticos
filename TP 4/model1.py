@@ -1,3 +1,5 @@
+# Código para preparar el shp de lenguajes
+# Se utiliza el archivo langa.shp descargado de: worldgeodatasets.com/language
 # Importamos todos los paquete necesarios para model1
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
