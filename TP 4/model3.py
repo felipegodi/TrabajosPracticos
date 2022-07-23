@@ -1,10 +1,10 @@
-"""
-Model exported as python.
-Name : model3
-Group : 
-With QGIS : 32208
-"""
-
+# Este código es para generar un archivo raster por países que incluya la mean
+# popd de 1800, 1900 y 2000.
+# Se utiliza el shp de: http://www.naturalearthdata.com/downloads/%2010m-cultural-vectors/10m-admin-0-countries/
+# para los países.
+# Y el raster de: https://dataportaal.pbl.nl/downloads/HYDE/HYDE3.0/
+# en este último link se usan los archivos de 1800, 1900 y 2000.
+# Importo los paquetes necesarios para model3
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -83,7 +83,7 @@ class Model3(QgsProcessingAlgorithm):
         #######################################################################
         # Zonal statistics
         #######################################################################
-        # Agrego columna con el mean de la population de 1800
+        # Agrego columna con el mean de la popd de 1800
         alg_params = {
             'COLUMN_PREFIX': 'pop1800',
             'INPUT': outputs['ZonalStatistics']['OUTPUT'],
@@ -102,7 +102,7 @@ class Model3(QgsProcessingAlgorithm):
         #######################################################################
         # Zonal statistics
         #######################################################################
-        # Agrego columna con el mean de la population de 1900
+        # Agrego columna con el mean de la popd de 1900
         alg_params = {
             'COLUMN_PREFIX': 'pop1900',
             'INPUT': outputs['ZonalStatistics']['OUTPUT'],
@@ -121,7 +121,7 @@ class Model3(QgsProcessingAlgorithm):
         #######################################################################
         # Zonal statistics
         #######################################################################
-        # Agrego columna con el mean de la population de 2000
+        # Agrego columna con el mean de la popd de 2000
         alg_params = {
             'COLUMN_PREFIX': 'pop2020',
             'INPUT': outputs['ZonalStatistics']['OUTPUT'],

@@ -1,4 +1,5 @@
 # Código para preparar el raster de idoneidad agrícola.
+# Se utiliza el raster de: https://sage.nelson.wisc.edu/?incdataset=Suitability%20for%20Agriculture
 # Importo los paquetes necesarios para model2
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
