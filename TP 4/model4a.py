@@ -1,4 +1,7 @@
-# Generar el número de idiomas en cada país
+# Generar el número de idiomas en cada país usando el WLMS del model1 y
+# intersecarlo con el shp de países.
+# Se utiliza el archivo langa.shp descargado de: worldgeodatasets.com/language
+# y también se utiliza el shp de: http://www.naturalearthdata.com/downloads/%2010m-cultural-vectors/10m-admin-0-countries/
 
 #Importo los paquetes necesarios
 from qgis.core import QgsProcessing
@@ -25,7 +28,7 @@ class Model4a(QgsProcessingAlgorithm):
         #######################################################################
         # Fix geometries - wlds
         #######################################################################
-        # Arreglo las geometrías del shapefile que generamos en el model2
+        # Arreglo las geometrías del shapefile que generamos en el model1
         alg_params = {
             'INPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/output/clean.shp',
             'OUTPUT': parameters['Fixgeo_wlds']
@@ -55,7 +58,7 @@ class Model4a(QgsProcessingAlgorithm):
         #######################################################################
         # Intersection
         #######################################################################
-        # Intersección entre los dos shps de countries y wlds
+        # Intersección entre los dos shps de países y idiomas
         alg_params = {
             'INPUT': outputs['FixGeometriesWlds']['OUTPUT'],
             'INPUT_FIELDS': ['GID'],
