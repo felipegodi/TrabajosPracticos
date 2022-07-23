@@ -118,7 +118,8 @@ class Model1(QgsProcessingAlgorithm):
         #######################################################################
         # Drop field(s)
         #######################################################################
-        # Dropeo columnas que no uso
+        # Dropeo columnas que no uso y termino con el vector "wldsout" ya
+        # disponible para guardar el shp clean.
         alg_params = {
             'COLUMN': ['ID_ISO_A3','ID_ISO_A2','ID_FIPS','NAM_LABEL','NAME_PROP','NAME2','NAM_ANSI','CNT','C1','POP','LMP_POP1','G','LMP_CLASS','FAMILYPROP','FAMILY','langpc_km2','length'],
             'INPUT': outputs['FieldCalculatorClone']['OUTPUT'],
