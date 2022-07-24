@@ -1,10 +1,6 @@
-"""
-Model exported as python.
-Name : model4b
-Group : 
-With QGIS : 32208
-"""
+# Código que calcula la distancia a la costa de los centroides de los países.
 
+# Importar paquetes necesarios para model4b
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -23,7 +19,7 @@ class Model4b(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSink('Centroidsout', 'centroidsout', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Nearest_cat_adjust_dropfields', 'nearest_cat_adjust_dropfields', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Centroids_nearest_coast_joined_dropfields', 'centroids_nearest_coast_joined_dropfields', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
-        self.addParameter(QgsProcessingParameterFeatureSink('Centroids_lat_lon_dropfields', 'centroids_lat_lon_dropfields', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
+        self.addParameter(QgsProcessingParameterFeatureSink('Centroids_lat_lon_drop_fields', 'centroids_lat_lon_drop_fields', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Extract_by_attribute', 'extract_by_attribute', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Extract_vertices', 'extract_vertices', type=QgsProcessing.TypeVectorPoint, createByDefault=True, supportsAppend=True, defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('Nearest_cat_adjust', 'nearest_cat_adjust', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
@@ -45,116 +41,58 @@ class Model4b(QgsProcessingAlgorithm):
         results = {}
         outputs = {}
 
-        # Drop field(s) - centroids_coast_joined
-        alg_params = {
-            'COLUMN': ['featurecla','scalerank','LABELRANK','SOVEREIGNT','SOV_A3','ADM0_DIF','LEVEL','TYPE','TLC','ADM0_A3','GEOU_DIF','GEOUNIT','GU_A3','SU_DIF','SUBUNIT','SU_A3','BRK_DIFF','NAME','NAME_LONG','BRK_A3','BRK_NAME','BRK_GROUP','ABBREV','POSTAL','FORMAL_EN','FORMAL_FR','NAME_CIAWF','NOTE_ADM0','NOTE_BRK','NAME_SORT','NAME_ALT','MAPCOLOR7','MAPCOLOR8','MAPCOLOR9','MAPCOLOR13','POP_EST','POP_RANK','POP_YEAR','GDP_MD','GDP_YEAR','ECONOMY','INCOME_GRP','FIPS_10','ISO_A2','ISO_A2_EH','ISO_A3_EH','ISO_N3','ISO_N3_EH','UN_A3','WB_A2','WB_A3','WOE_ID','WOE_ID_EH','WOE_NOTE','ADM0_ISO','ADM0_DIFF','ADM0_TLC','ADM0_A3_US','ADM0_A3_FR','ADM0_A3_RU','ADM0_A3_ES','ADM0_A3_CN','ADM0_A3_TW','ADM0_A3_IN','ADM0_A3_NP','ADM0_A3_PK','ADM0_A3_DE','ADM0_A3_GB','ADM0_A3_BR','ADM0_A3_IL','ADM0_A3_PS','ADM0_A3_SA','ADM0_A3_EG','ADM0_A3_MA','ADM0_A3_PT','ADM0_A3_AR','ADM0_A3_JP','ADM0_A3_KO','ADM0_A3_VN','ADM0_A3_TR','ADM0_A3_ID','ADM0_A3_PL','ADM0_A3_GR','ADM0_A3_IT','ADM0_A3_NL','ADM0_A3_SE','ADM0_A3_BD','ADM0_A3_UA','ADM0_A3_UN','ADM0_A3_WB','CONTINENT','REGION_UN','SUBREGION','REGION_WB','NAME_LEN','LONG_LEN','ABBREV_LEN','TINY','HOMEPART','MIN_ZOOM','MIN_LABEL','MAX_LABEL','LABEL_X','LABEL_Y','NE_ID','WIKIDATAID','NAME_AR','NAME_BN','NAME_DE','NAME_EN','NAME_ES','NAME_FA','NAME_FR','NAME_EL','NAME_HE','NAME_HI','NAME_HU','NAME_ID','NAME_IT','NAME_JA','NAME_KO','NAME_NL','NAME_PL','NAME_PT','NAME_RU','NAME_SV','NAME_TR','NAME_UK','NAME_UR','NAME_VI','NAME_ZH','NAME_ZHT','FCLASS_ISO','TLC_DIFF','FCLASS_TLC','FCLASS_US','FCLASS_FR','FCLASS_RU','FCLASS_ES','FCLASS_CN','FCLASS_TW','FCLASS_IN','FCLASS_NP','FCLASS_PK','FCLASS_DE','FCLASS_GB','FCLASS_BR','FCLASS_IL','FCLASS_PS','FCLASS_SA','FCLASS_EG','FCLASS_MA','FCLASS_PT','FCLASS_AR','FCLASS_JP','FCLASS_KO','FCLASS_VN','FCLASS_TR','FCLASS_ID','FCLASS_PL','FCLASS_GR','FCLASS_IT','FCLASS_NL','FCLASS_SE','FCLASS_BD','FCLASS_UA','ADMIN_2','ISO_A3_2'],
-            'INPUT': 'Joined_layer_9d3c48b1_d030_471c_ac67_2ca87cb8406b',
-            'OUTPUT': parameters['Centroids_nearest_coast_joined_dropfields']
-        }
-        outputs['DropFieldsCentroids_coast_joined'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Centroids_nearest_coast_joined_dropfields'] = outputs['DropFieldsCentroids_coast_joined']['OUTPUT']
-
-        feedback.setCurrentStep(1)
-        if feedback.isCanceled():
-            return {}
-
-        # Extract by attribute
-        alg_params = {
-            'FIELD': 'distance',
-            'INPUT': 'Vertices_33d4feae_6d10_40a5_bc54_df06c0d0cd24',
-            'OPERATOR': 2,  # >
-            'VALUE': '0',
-            'OUTPUT': parameters['Extract_by_attribute']
-        }
-        outputs['ExtractByAttribute'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Extract_by_attribute'] = outputs['ExtractByAttribute']['OUTPUT']
-
-        feedback.setCurrentStep(2)
-        if feedback.isCanceled():
-            return {}
-
-        # Drop field(s) - cat_adjust
-        alg_params = {
-            'COLUMN': ['xcoord','ycoord'],
-            'INPUT': 'Calculated_ee0d59f5_1088_4752_806e_b94af9b15702',
-            'OUTPUT': parameters['Nearest_cat_adjust_dropfields']
-        }
-        outputs['DropFieldsCat_adjust'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Nearest_cat_adjust_dropfields'] = outputs['DropFieldsCat_adjust']['OUTPUT']
-
-        feedback.setCurrentStep(3)
-        if feedback.isCanceled():
-            return {}
-
-        # Drop field(s) - coast_lon
-        alg_params = {
-            'COLUMN': ['fid','cat','xcoord','ycoord','fid_2','cat_2','vertex_index','vertex_part','vertex_part','_index','angle'],
-            'INPUT': 'Calculated_be0fab8b_1757_4b7d_b99e_40a4d63cda2f',
-            'OUTPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/output/csvout.csv',
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['DropFieldsCoast_lon'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
-        feedback.setCurrentStep(4)
-        if feedback.isCanceled():
-            return {}
-
+        #######################################################################
         # Fix geometries - countries
+        #######################################################################
+        # Importo el shp de los países y arreglo las geometrias para procesar el
+        # shapefile
         alg_params = {
-            'INPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/input/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp',
+            'INPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/Input/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp',
             'OUTPUT': parameters['Fixgeo_countries']
         }
         outputs['FixGeometriesCountries'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results['Fixgeo_countries'] = outputs['FixGeometriesCountries']['OUTPUT']
 
-        feedback.setCurrentStep(5)
+        feedback.setCurrentStep(1)
         if feedback.isCanceled():
             return {}
 
-        # Field calculator - cent_lat
+        #######################################################################
+        # Fix geometries - coast
+        #######################################################################
+        # Importo el shp de las costas y arreglo las geometrias para procesar el
+        # shapefile
         alg_params = {
-            'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'cent_lat',
-            'FIELD_PRECISION': 10,
-            'FIELD_TYPE': 0,  # Float
-            'FORMULA': "attribute($currentfeature, 'ycoord')",
-            'INPUT': 'Extracted__attribute__0b66b34e_a4ce_40e6_a80e_e717c8d5e556',
-            'OUTPUT': parameters['Added_field_cent_lat']
+            'INPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/Input/ne_10m_coastline/ne_10m_coastline.shp',
+            'OUTPUT': parameters['Fixgeo_coast']
         }
-        outputs['FieldCalculatorCent_lat'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Added_field_cent_lat'] = outputs['FieldCalculatorCent_lat']['OUTPUT']
+        outputs['FixGeometriesCoast'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Fixgeo_coast'] = outputs['FixGeometriesCoast']['OUTPUT']
 
-        feedback.setCurrentStep(6)
+        feedback.setCurrentStep(2)
         if feedback.isCanceled():
             return {}
 
-        # Add geometry attributes
+        #######################################################################
+        # Drop field(s) - fixgeo_coast
+        #######################################################################
+        # Elimino todas las columnas que no se van a usar de el shp de la costa
         alg_params = {
-            'CALC_METHOD': 0,  # Layer CRS
-            'INPUT': 'Remaining_fields_37c09e76_59ce_44d2_aecc_60d0bf5660a2',
-            'OUTPUT': parameters['Add_geo_coast']
+            'COLUMN': ['scalerank'],
+            'INPUT': outputs['FixGeometriesCoast']['OUTPUT'],
+            'OUTPUT': parameters['Coastout']
         }
-        outputs['AddGeometryAttributes'] = processing.run('qgis:exportaddgeometrycolumns', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Add_geo_coast'] = outputs['AddGeometryAttributes']['OUTPUT']
+        outputs['DropFieldsFixgeo_coast'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Coastout'] = outputs['DropFieldsFixgeo_coast']['OUTPUT']
 
-        feedback.setCurrentStep(7)
+        feedback.setCurrentStep(3)
         if feedback.isCanceled():
             return {}
 
-        # Drop field(s) - cent_lat_lon
-        alg_params = {
-            'COLUMN': ['fid','cat','xcoord','ycoord','fid_2','cat_2','vertex_index','vertex_part','vertex_part','_index','angle'],
-            'INPUT': 'Calculated_ef58087b_f17a_4fb6_974a_6f107f77ddcc',
-            'OUTPUT': parameters['Centroids_lat_lon_dropfields']
-        }
-        outputs['DropFieldsCent_lat_lon'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Centroids_lat_lon_dropfields'] = outputs['DropFieldsCent_lat_lon']['OUTPUT']
-
-        feedback.setCurrentStep(8)
-        if feedback.isCanceled():
-            return {}
-
+        #######################################################################
         # Centroids
+        #######################################################################
+        # Establezco los centroides para los países
         alg_params = {
             'ALL_PARTS': False,
             'INPUT': outputs['FixGeometriesCountries']['OUTPUT'],
@@ -163,11 +101,14 @@ class Model4b(QgsProcessingAlgorithm):
         outputs['Centroids'] = processing.run('native:centroids', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results['Country_centroids'] = outputs['Centroids']['OUTPUT']
 
-        feedback.setCurrentStep(9)
+        feedback.setCurrentStep(4)
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Add geometry attributes
+        #######################################################################
+        # Le agrego las coordenadas a los centroides
         alg_params = {
             'CALC_METHOD': 0,  # Layer CRS
             'INPUT': outputs['Centroids']['OUTPUT'],
@@ -176,74 +117,45 @@ class Model4b(QgsProcessingAlgorithm):
         outputs['AddGeometryAttributes'] = processing.run('qgis:exportaddgeometrycolumns', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         results['Centroids_w_coord'] = outputs['AddGeometryAttributes']['OUTPUT']
 
-        feedback.setCurrentStep(10)
+        feedback.setCurrentStep(5)
         if feedback.isCanceled():
             return {}
 
-        # Join attributes by field value
+        #######################################################################
+        # Drop field(s) - centroids_w_coord
+        #######################################################################
+        # Elimino columnas que no se van a usar de el shp de los centroides con
+        # coordenadas
         alg_params = {
-            'DISCARD_NONMATCHING': False,
-            'FIELD': 'cat',
-            'FIELDS_TO_COPY': [''],
-            'FIELD_2': 'cat',
-            'INPUT': 'output_3991529d_4b81_4d9c_9ea9_0579d3922182',
-            'INPUT_2': 'Remaining_fields_a58fb394_6a57_430c_bc98_e4f8f17c6d50',
-            'METHOD': 1,  # Take attributes of the first matching feature only (one-to-one)
-            'PREFIX': '',
-            'OUTPUT': parameters['Centroids_nearest_coast_distance_joined']
+            'COLUMN': ['featurecla','scalerank','LABELRANK','SOVEREIGNT','SOV_A3','ADM0_DIF','LEVEL','TYPE','TLC','ADM0_A3','GEOU_DIF','GEOUNIT','GU_A3','SU_DIF','SUBUNIT','SU_A3','BRK_DIFF','NAME','NAME_LONG','BRK_A3','BRK_NAME','BRK_GROUP','ABBREV','POSTAL','FORMAL_EN','FORMAL_FR','NAME_CIAWF','NOTE_ADM0','NOTE_BRK','NAME_SORT','NAME_ALT','MAPCOLOR7','MAPCOLOR8','MAPCOLOR9','MAPCOLOR13','POP_EST','POP_RANK','POP_YEAR','GDP_MD','GDP_YEAR','ECONOMY','INCOME_GRP','FIPS_10','ISO_A2','ISO_A2_EH','ISO_A3_EH','ISO_N3','ISO_N3_EH','UN_A3','WB_A2','WB_A3','WOE_ID','WOE_ID_EH','WOE_NOTE','ADM0_ISO','ADM0_DIFF','ADM0_TLC','ADM0_A3_US','ADM0_A3_FR','ADM0_A3_RU','ADM0_A3_ES','ADM0_A3_CN','ADM0_A3_TW','ADM0_A3_IN','ADM0_A3_NP','ADM0_A3_PK','ADM0_A3_DE','ADM0_A3_GB','ADM0_A3_BR','ADM0_A3_IL','ADM0_A3_PS','ADM0_A3_SA','ADM0_A3_EG','ADM0_A3_MA','ADM0_A3_PT','ADM0_A3_AR','ADM0_A3_JP','ADM0_A3_KO','ADM0_A3_VN','ADM0_A3_TR','ADM0_A3_ID','ADM0_A3_PL','ADM0_A3_GR','ADM0_A3_IT','ADM0_A3_NL','ADM0_A3_SE','ADM0_A3_BD','ADM0_A3_UA','ADM0_A3_UN','ADM0_A3_WB','CONTINENT','REGION_UN','SUBREGION','REGION_WB','NAME_LEN','LONG_LEN','ABBREV_LEN','TINY','HOMEPART','MIN_ZOOM','MIN_LABEL','MAX_LABEL','LABEL_X','LABEL_Y','NE_ID','WIKIDATAID','NAME_AR','NAME_BN','NAME_DE','NAME_EN','NAME_ES','NAME_FA','NAME_FR','NAME_EL','NAME_HE','NAME_HI','NAME_HU','NAME_ID','NAME_IT','NAME_JA','NAME_KO','NAME_NL','NAME_PL','NAME_PT','NAME_RU','NAME_SV','NAME_TR','NAME_UK','NAME_UR','NAME_VI','NAME_ZH','NAME_ZHT','FCLASS_ISO','TLC_DIFF','FCLASS_TLC','FCLASS_US','FCLASS_FR','FCLASS_RU','FCLASS_ES','FCLASS_CN','FCLASS_TW','FCLASS_IN','FCLASS_NP','FCLASS_PK','FCLASS_DE','FCLASS_GB','FCLASS_BR','FCLASS_IL','FCLASS_PS','FCLASS_SA','FCLASS_EG','FCLASS_MA','FCLASS_PT','FCLASS_AR','FCLASS_JP','FCLASS_KO','FCLASS_VN','FCLASS_TR','FCLASS_ID','FCLASS_PL','FCLASS_GR','FCLASS_IT','FCLASS_NL','FCLASS_SE','FCLASS_BD','FCLASS_UA'],
+            'INPUT': outputs['AddGeometryAttributes']['OUTPUT'],
+            'OUTPUT': parameters['Centroidsout']
         }
-        outputs['JoinAttributesByFieldValue'] = processing.run('native:joinattributestable', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Centroids_nearest_coast_distance_joined'] = outputs['JoinAttributesByFieldValue']['OUTPUT']
+        outputs['DropFieldsCentroids_w_coord'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Centroidsout'] = outputs['DropFieldsCentroids_w_coord']['OUTPUT']
 
-        feedback.setCurrentStep(11)
+        feedback.setCurrentStep(6)
         if feedback.isCanceled():
             return {}
 
-        # Field calculator - coast_lat
-        alg_params = {
-            'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'coast_lat',
-            'FIELD_PRECISION': 10,
-            'FIELD_TYPE': 0,  # Float
-            'FORMULA': "attribute($currentfeature,'ycoord')",
-            'INPUT': 'Added_geom_info_be824988_988f_41f5_aa84_432ad80dd9e4',
-            'OUTPUT': parameters['Added_field_coast_lat']
-        }
-        outputs['FieldCalculatorCoast_lat'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Added_field_coast_lat'] = outputs['FieldCalculatorCoast_lat']['OUTPUT']
-
-        feedback.setCurrentStep(12)
-        if feedback.isCanceled():
-            return {}
-
-        # Drop field(s) - fixgeo_coast
-        alg_params = {
-            'COLUMN': ['scalerank'],
-            'INPUT': 'Fixed_geometries_e14088d6_580b_4abb_b8c6_087d53999949',
-            'OUTPUT': parameters['Coastout']
-        }
-        outputs['DropFieldsFixgeo_coast'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Coastout'] = outputs['DropFieldsFixgeo_coast']['OUTPUT']
-
-        feedback.setCurrentStep(13)
-        if feedback.isCanceled():
-            return {}
-
+        #######################################################################
         # v.distance
+        #######################################################################
+        # Busco la distancia mas cercana desde el centroide a la costa
         alg_params = {
             'GRASS_MIN_AREA_PARAMETER': 0.0001,
             'GRASS_OUTPUT_TYPE_PARAMETER': 0,  # auto
             'GRASS_REGION_PARAMETER': None,
             'GRASS_SNAP_TOLERANCE_PARAMETER': -1,
             'GRASS_VECTOR_DSCO': '',
-            'GRASS_VECTOR_EXPORT_NOCAT': False,
+            'GRASS_VECTOR_EXPORT_NOCAT': True,
             'GRASS_VECTOR_LCO': '',
             'column': ['xcoord'],
             'dmax': -1,
             'dmin': -1,
-            'from': 'Remaining_fields_1cb335ea_16cd_4ad1_97a6_9268a04478b0',
+            'from': outputs['DropFieldsCentroids_w_coord']['OUTPUT'],
             'from_type': [0,1,3],  # point,line,area
-            'to': 'Remaining_fields_4f20c5a0_69f9_469e_b3d2_4f074d2d7042',
+            'to': outputs['DropFieldsFixgeo_coast']['OUTPUT'],
             'to_column': '',
             'to_type': [0,1,3],  # point,line,area
             'upload': [0],  # cat
@@ -254,112 +166,266 @@ class Model4b(QgsProcessingAlgorithm):
         results['Distout'] = outputs['Vdistance']['output']
         results['Nearout'] = outputs['Vdistance']['from_output']
 
+        feedback.setCurrentStep(7)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Field calculator - cat adjust
+        #######################################################################
+        # Corregir la variable generada en el paso anterior
+        alg_params = {
+            'FIELD_LENGTH': 4,
+            'FIELD_NAME': 'cat',
+            'FIELD_PRECISION': 3,
+            'FIELD_TYPE': 1,  # Integer
+            'FORMULA': "attribute($currentfeature,'cat')-1",
+            'INPUT': outputs['Vdistance']['from_output'],
+            'OUTPUT': parameters['Nearest_cat_adjust']
+        }
+        outputs['FieldCalculatorCatAdjust'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Nearest_cat_adjust'] = outputs['FieldCalculatorCatAdjust']['OUTPUT']
+
+        feedback.setCurrentStep(8)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Drop field(s) - cat_adjust
+        #######################################################################
+        # Elimino columnas que no voy a usar
+        alg_params = {
+            'COLUMN': ['xcoord','ycoord'],
+            'INPUT': outputs['FieldCalculatorCatAdjust']['OUTPUT'],
+            'OUTPUT': parameters['Nearest_cat_adjust_dropfields']
+        }
+        outputs['DropFieldsCat_adjust'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Nearest_cat_adjust_dropfields'] = outputs['DropFieldsCat_adjust']['OUTPUT']
+
+        feedback.setCurrentStep(9)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Join attributes by field value - centroids y coast
+        #######################################################################
+        # Merge entre los centroides y la costa usando la columna "ne_10m_adm"
+        alg_params = {
+            'DISCARD_NONMATCHING': False,
+            'FIELD': 'ne_10m_adm',
+            'FIELDS_TO_COPY': [''],
+            'FIELD_2': 'ne_10m_adm',
+            'INPUT': outputs['DropFieldsCentroids_w_coord']['OUTPUT'],
+            'INPUT_2': outputs['DropFieldsCat_adjust']['OUTPUT'],
+            'METHOD': 1,  # Take attributes of the first matching feature only (one-to-one)
+            'PREFIX': '',
+            'NON_MATCHING': QgsProcessing.TEMPORARY_OUTPUT,
+            'OUTPUT': parameters['Centroids_nearest_coast_joined']
+        }
+        outputs['JoinAttributesByFieldValueCentroidsYCoast'] = processing.run('native:joinattributestable', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Centroids_nearest_coast_joined'] = outputs['JoinAttributesByFieldValueCentroidsYCoast']['OUTPUT']
+
+        feedback.setCurrentStep(10)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Drop field(s) - centroids_coast_joined
+        #######################################################################
+        # Elimino columnas que no se usan de el merge entre centroides y costas
+        alg_params = {
+            'COLUMN': ['featurecla','scalerank','LABELRANK','SOVEREIGNT','SOV_A3','ADM0_DIF','LEVEL','TYPE','TLC','ADM0_A3','GEOU_DIF','GEOUNIT','GU_A3','SU_DIF','SUBUNIT','SU_A3','BRK_DIFF','NAME','NAME_LONG','BRK_A3','BRK_NAME','BRK_GROUP','ABBREV','POSTAL','FORMAL_EN','FORMAL_FR','NAME_CIAWF','NOTE_ADM0','NOTE_BRK','NAME_SORT','NAME_ALT','MAPCOLOR7','MAPCOLOR8','MAPCOLOR9','MAPCOLOR13','POP_EST','POP_RANK','POP_YEAR','GDP_MD','GDP_YEAR','ECONOMY','INCOME_GRP','FIPS_10','ISO_A2','ISO_A2_EH','ISO_A3_EH','ISO_N3','ISO_N3_EH','UN_A3','WB_A2','WB_A3','WOE_ID','WOE_ID_EH','WOE_NOTE','ADM0_ISO','ADM0_DIFF','ADM0_TLC','ADM0_A3_US','ADM0_A3_FR','ADM0_A3_RU','ADM0_A3_ES','ADM0_A3_CN','ADM0_A3_TW','ADM0_A3_IN','ADM0_A3_NP','ADM0_A3_PK','ADM0_A3_DE','ADM0_A3_GB','ADM0_A3_BR','ADM0_A3_IL','ADM0_A3_PS','ADM0_A3_SA','ADM0_A3_EG','ADM0_A3_MA','ADM0_A3_PT','ADM0_A3_AR','ADM0_A3_JP','ADM0_A3_KO','ADM0_A3_VN','ADM0_A3_TR','ADM0_A3_ID','ADM0_A3_PL','ADM0_A3_GR','ADM0_A3_IT','ADM0_A3_NL','ADM0_A3_SE','ADM0_A3_BD','ADM0_A3_UA','ADM0_A3_UN','ADM0_A3_WB','CONTINENT','REGION_UN','SUBREGION','REGION_WB','NAME_LEN','LONG_LEN','ABBREV_LEN','TINY','HOMEPART','MIN_ZOOM','MIN_LABEL','MAX_LABEL','LABEL_X','LABEL_Y','NE_ID','WIKIDATAID','NAME_AR','NAME_BN','NAME_DE','NAME_EN','NAME_ES','NAME_FA','NAME_FR','NAME_EL','NAME_HE','NAME_HI','NAME_HU','NAME_ID','NAME_IT','NAME_JA','NAME_KO','NAME_NL','NAME_PL','NAME_PT','NAME_RU','NAME_SV','NAME_TR','NAME_UK','NAME_UR','NAME_VI','NAME_ZH','NAME_ZHT','FCLASS_ISO','TLC_DIFF','FCLASS_TLC','FCLASS_US','FCLASS_FR','FCLASS_RU','FCLASS_ES','FCLASS_CN','FCLASS_TW','FCLASS_IN','FCLASS_NP','FCLASS_PK','FCLASS_DE','FCLASS_GB','FCLASS_BR','FCLASS_IL','FCLASS_PS','FCLASS_SA','FCLASS_EG','FCLASS_MA','FCLASS_PT','FCLASS_AR','FCLASS_JP','FCLASS_KO','FCLASS_VN','FCLASS_TR','FCLASS_ID','FCLASS_PL','FCLASS_GR','FCLASS_IT','FCLASS_NL','FCLASS_SE','FCLASS_BD','FCLASS_UA','ADMIN_2','ISO_A3_2'],
+            'INPUT': outputs['JoinAttributesByFieldValueCentroidsYCoast']['NON_MATCHING'],
+            'OUTPUT': parameters['Centroids_nearest_coast_joined_dropfields']
+        }
+        outputs['DropFieldsCentroids_coast_joined'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Centroids_nearest_coast_joined_dropfields'] = outputs['DropFieldsCentroids_coast_joined']['OUTPUT']
+
+        feedback.setCurrentStep(11)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Join attributes by field value - centroids y nearest coast
+        #######################################################################
+        # Merge entre los centroides y la costa mas cercana usando la columna
+        # "cat"
+        alg_params = {
+            'DISCARD_NONMATCHING': False,
+            'FIELD': 'cat',
+            'FIELDS_TO_COPY': [''],
+            'FIELD_2': 'cat',
+            'INPUT': outputs['Vdistance']['output'],
+            'INPUT_2': outputs['DropFieldsCentroids_coast_joined']['OUTPUT'],
+            'METHOD': 1,  # Take attributes of the first matching feature only (one-to-one)
+            'PREFIX': '',
+            'NON_MATCHING': QgsProcessing.TEMPORARY_OUTPUT,
+            'OUTPUT': parameters['Centroids_nearest_coast_distance_joined']
+        }
+        outputs['JoinAttributesByFieldValueCentroidsYNearestCoast'] = processing.run('native:joinattributestable', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Centroids_nearest_coast_distance_joined'] = outputs['JoinAttributesByFieldValueCentroidsYNearestCoast']['OUTPUT']
+
+        feedback.setCurrentStep(12)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Extract vertices
+        #######################################################################
+        # Extraigo los vertices de el merge entre centroides y costa más cercana
+        alg_params = {
+            'INPUT': outputs['JoinAttributesByFieldValueCentroidsYNearestCoast']['NON_MATCHING'],
+            'OUTPUT': parameters['Extract_vertices']
+        }
+        outputs['ExtractVertices'] = processing.run('native:extractvertices', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Extract_vertices'] = outputs['ExtractVertices']['OUTPUT']
+
+        feedback.setCurrentStep(13)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Extract by attribute
+        #######################################################################
+        # Extraer vertices cuando la distancia es > 0 
+        alg_params = {
+            'FIELD': 'distance',
+            'INPUT': outputs['ExtractVertices']['OUTPUT'],
+            'OPERATOR': 2,  # >
+            'VALUE': '0',
+            'FAIL_OUTPUT': QgsProcessing.TEMPORARY_OUTPUT,
+            'OUTPUT': parameters['Extract_by_attribute']
+        }
+        outputs['ExtractByAttribute'] = processing.run('native:extractbyattribute', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Extract_by_attribute'] = outputs['ExtractByAttribute']['OUTPUT']
+
         feedback.setCurrentStep(14)
         if feedback.isCanceled():
             return {}
 
-        # Field calculator - cent_lon
+        #######################################################################
+        # Field calculator - cent_lat
+        #######################################################################
+        # Genero en la shp con la que veniamos trabajando la latitud
         alg_params = {
             'FIELD_LENGTH': 10,
-            'FIELD_NAME': 'cent_lon',
+            'FIELD_NAME': 'cent_lat',
             'FIELD_PRECISION': 10,
             'FIELD_TYPE': 0,  # Float
-            'FORMULA': "attribute($currentfeature, 'xcoord')",
-            'INPUT': 'Calculated_98892231_2d2c_4ee0_82ff_4443076e6f65',
-            'OUTPUT': parameters['Added_field_cent_lon']
+            'FORMULA': "attribute($currentfeature,'ycoord')",
+            'INPUT': outputs['ExtractByAttribute']['FAIL_OUTPUT'],
+            'OUTPUT': parameters['Added_field_cent_lat']
         }
-        outputs['FieldCalculatorCent_lon'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Added_field_cent_lon'] = outputs['FieldCalculatorCent_lon']['OUTPUT']
+        outputs['FieldCalculatorCent_lat'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Added_field_cent_lat'] = outputs['FieldCalculatorCent_lat']['OUTPUT']
 
         feedback.setCurrentStep(15)
         if feedback.isCanceled():
             return {}
 
-        # Field calculator - coast_lon
+        #######################################################################
+        # Field calculator - cent_lon
+        #######################################################################
+        # Genero en la shp con la que veniamos trabajando la longitud
+        alg_params = {
+            'FIELD_LENGTH': 10,
+            'FIELD_NAME': 'cent_lon',
+            'FIELD_PRECISION': 10,
+            'FIELD_TYPE': 0,  # Float
+            'FORMULA': "attribute($currentfeature,'xcoord')",
+            'INPUT': outputs['FieldCalculatorCent_lat']['OUTPUT'],
+            'OUTPUT': parameters['Added_field_cent_lon']
+        }
+        outputs['FieldCalculatorCent_lon'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Added_field_cent_lon'] = outputs['FieldCalculatorCent_lon']['OUTPUT']
+
+        feedback.setCurrentStep(16)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Drop field(s) - cent_lat_lon
+        #######################################################################
+        # Elimino las columnas que no se van a usar
+        alg_params = {
+            'COLUMN': ['fid','cat','xcoord','ycoord','fid_2','cat_2','vertex_index','vertex_part','vertex_part','_index','angle'],
+            'INPUT': outputs['FieldCalculatorCent_lon']['OUTPUT'],
+            'OUTPUT': parameters['Centroids_lat_lon_drop_fields']
+        }
+        outputs['DropFieldsCent_lat_lon'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Centroids_lat_lon_drop_fields'] = outputs['DropFieldsCent_lat_lon']['OUTPUT']
+
+        feedback.setCurrentStep(17)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Add geometry attributes - add_geo_coast
+        #######################################################################
+        # Le agrego los atributos de geometria
+        alg_params = {
+            'CALC_METHOD': 0,  # Layer CRS
+            'INPUT': outputs['DropFieldsCent_lat_lon']['OUTPUT'],
+            'OUTPUT': parameters['Add_geo_coast']
+        }
+        outputs['AddGeometryAttributesAdd_geo_coast'] = processing.run('qgis:exportaddgeometrycolumns', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Add_geo_coast'] = outputs['AddGeometryAttributesAdd_geo_coast']['OUTPUT']
+
+        feedback.setCurrentStep(18)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Field calculator - add_geo_coast_lat
+        #######################################################################
+        # Genero en la shp con la que veniamos trabajando la latitud
+        alg_params = {
+            'FIELD_LENGTH': 10,
+            'FIELD_NAME': 'coast_lat',
+            'FIELD_PRECISION': 10,
+            'FIELD_TYPE': 0,  # Float
+            'FORMULA': "attribute($currentfeature,'ycoord')",
+            'INPUT': outputs['AddGeometryAttributesAdd_geo_coast']['OUTPUT'],
+            'OUTPUT': parameters['Added_field_coast_lat']
+        }
+        outputs['FieldCalculatorAdd_geo_coast_lat'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Added_field_coast_lat'] = outputs['FieldCalculatorAdd_geo_coast_lat']['OUTPUT']
+
+        feedback.setCurrentStep(19)
+        if feedback.isCanceled():
+            return {}
+
+        #######################################################################
+        # Field calculator - add_geo_coast_lon
+        #######################################################################
+        # Genero en la shp con la que veniamos trabajando la longitud
         alg_params = {
             'FIELD_LENGTH': 10,
             'FIELD_NAME': 'coast_lon',
             'FIELD_PRECISION': 10,
             'FIELD_TYPE': 0,  # Float
             'FORMULA': "attribute($currentfeature,'xcoord')",
-            'INPUT': 'Calculated_8a99ae26_f8c6_4472_bbc1_3e51db7198e3',
+            'INPUT': outputs['FieldCalculatorAdd_geo_coast_lat']['OUTPUT'],
             'OUTPUT': parameters['Added_field_coast_lon']
         }
-        outputs['FieldCalculatorCoast_lon'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Added_field_coast_lon'] = outputs['FieldCalculatorCoast_lon']['OUTPUT']
-
-        feedback.setCurrentStep(16)
-        if feedback.isCanceled():
-            return {}
-
-        # Extract vertices
-        alg_params = {
-            'INPUT': 'Joined_layer_56979993_da49_4381_905f_80b7d9b823aa',
-            'OUTPUT': parameters['Extract_vertices']
-        }
-        outputs['ExtractVertices'] = processing.run('native:extractvertices', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Extract_vertices'] = outputs['ExtractVertices']['OUTPUT']
-
-        feedback.setCurrentStep(17)
-        if feedback.isCanceled():
-            return {}
-
-        # Drop field(s) - centroids_w_coord
-        alg_params = {
-            'COLUMN': ['featurecla','scalerank','LABELRANK','SOVEREIGNT','SOV_A3','ADM0_DIF','LEVEL','TYPE','TLC','ADM0_A3','GEOU_DIF','GEOUNIT','GU_A3','SU_DIF','SUBUNIT','SU_A3','BRK_DIFF','NAME','NAME_LONG','BRK_A3','BRK_NAME','BRK_GROUP','ABBREV','POSTAL','FORMAL_EN','FORMAL_FR','NAME_CIAWF','NOTE_ADM0','NOTE_BRK','NAME_SORT','NAME_ALT','MAPCOLOR7','MAPCOLOR8','MAPCOLOR9','MAPCOLOR13','POP_EST','POP_RANK','POP_YEAR','GDP_MD','GDP_YEAR','ECONOMY','INCOME_GRP','FIPS_10','ISO_A2','ISO_A2_EH','ISO_A3_EH','ISO_N3','ISO_N3_EH','UN_A3','WB_A2','WB_A3','WOE_ID','WOE_ID_EH','WOE_NOTE','ADM0_ISO','ADM0_DIFF','ADM0_TLC','ADM0_A3_US','ADM0_A3_FR','ADM0_A3_RU','ADM0_A3_ES','ADM0_A3_CN','ADM0_A3_TW','ADM0_A3_IN','ADM0_A3_NP','ADM0_A3_PK','ADM0_A3_DE','ADM0_A3_GB','ADM0_A3_BR','ADM0_A3_IL','ADM0_A3_PS','ADM0_A3_SA','ADM0_A3_EG','ADM0_A3_MA','ADM0_A3_PT','ADM0_A3_AR','ADM0_A3_JP','ADM0_A3_KO','ADM0_A3_VN','ADM0_A3_TR','ADM0_A3_ID','ADM0_A3_PL','ADM0_A3_GR','ADM0_A3_IT','ADM0_A3_NL','ADM0_A3_SE','ADM0_A3_BD','ADM0_A3_UA','ADM0_A3_UN','ADM0_A3_WB','CONTINENT','REGION_UN','SUBREGION','REGION_WB','NAME_LEN','LONG_LEN','ABBREV_LEN','TINY','HOMEPART','MIN_ZOOM','MIN_LABEL','MAX_LABEL','LABEL_X','LABEL_Y','NE_ID','WIKIDATAID','NAME_AR','NAME_BN','NAME_DE','NAME_EN','NAME_ES','NAME_FA','NAME_FR','NAME_EL','NAME_HE','NAME_HI','NAME_HU','NAME_ID','NAME_IT','NAME_JA','NAME_KO','NAME_NL','NAME_PL','NAME_PT','NAME_RU','NAME_SV','NAME_TR','NAME_UK','NAME_UR','NAME_VI','NAME_ZH','NAME_ZHT','FCLASS_ISO','TLC_DIFF','FCLASS_TLC','FCLASS_US','FCLASS_FR','FCLASS_RU','FCLASS_ES','FCLASS_CN','FCLASS_TW','FCLASS_IN','FCLASS_NP','FCLASS_PK','FCLASS_DE','FCLASS_GB','FCLASS_BR','FCLASS_IL','FCLASS_PS','FCLASS_SA','FCLASS_EG','FCLASS_MA','FCLASS_PT','FCLASS_AR','FCLASS_JP','FCLASS_KO','FCLASS_VN','FCLASS_TR','FCLASS_ID','FCLASS_PL','FCLASS_GR','FCLASS_IT','FCLASS_NL','FCLASS_SE','FCLASS_BD','FCLASS_UA'],
-            'INPUT': 'Added_geom_info_7f39717e_89f3_4dd6_a32e_1f5c176d89e3',
-            'OUTPUT': parameters['Centroidsout']
-        }
-        outputs['DropFieldsCentroids_w_coord'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Centroidsout'] = outputs['DropFieldsCentroids_w_coord']['OUTPUT']
-
-        feedback.setCurrentStep(18)
-        if feedback.isCanceled():
-            return {}
-
-        # Field calculator
-        alg_params = {
-            'FIELD_LENGTH': 4,
-            'FIELD_NAME': 'cat',
-            'FIELD_PRECISION': 3,
-            'FIELD_TYPE': 1,  # Integer
-            'FORMULA': "attribute($currentfeature, 'cat')-1",
-            'INPUT': 'from_output_4a034779_64f9_4d55_806b_357a0501f5eb',
-            'OUTPUT': parameters['Nearest_cat_adjust']
-        }
-        outputs['FieldCalculator'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Nearest_cat_adjust'] = outputs['FieldCalculator']['OUTPUT']
-
-        feedback.setCurrentStep(19)
-        if feedback.isCanceled():
-            return {}
-
-        # Join attributes by field value - centroids y coast
-        alg_params = {
-            'DISCARD_NONMATCHING': False,
-            'FIELD': 'ISO_A3',
-            'FIELDS_TO_COPY': [''],
-            'FIELD_2': 'ISO_A3',
-            'INPUT': 'Remaining_fields_1cb335ea_16cd_4ad1_97a6_9268a04478b0',
-            'INPUT_2': 'Remaining_fields_bfabaf33_822d_4e14_a6dc_179bdee6c634',
-            'METHOD': 1,  # Take attributes of the first matching feature only (one-to-one)
-            'PREFIX': '',
-            'OUTPUT': parameters['Centroids_nearest_coast_joined']
-        }
-        outputs['JoinAttributesByFieldValueCentroidsYCoast'] = processing.run('native:joinattributestable', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Centroids_nearest_coast_joined'] = outputs['JoinAttributesByFieldValueCentroidsYCoast']['OUTPUT']
+        outputs['FieldCalculatorAdd_geo_coast_lon'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        results['Added_field_coast_lon'] = outputs['FieldCalculatorAdd_geo_coast_lon']['OUTPUT']
 
         feedback.setCurrentStep(20)
         if feedback.isCanceled():
             return {}
 
-        # Fix geometries - coast
+        #######################################################################
+        # Drop field(s)
+        #######################################################################
+        # Eliminar las columnas que no se usan
         alg_params = {
-            'INPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/input/ne_10m_coastline/ne_10m_coastline.shp',
-            'OUTPUT': parameters['Fixgeo_coast']
+            'COLUMN': ['xcoord','ycoord'],
+            'INPUT': outputs['FieldCalculatorAdd_geo_coast_lon']['OUTPUT'],
+            'OUTPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/output/csvout.csv',
+            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
-        outputs['FixGeometriesCoast'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['Fixgeo_coast'] = outputs['FixGeometriesCoast']['OUTPUT']
+        outputs['DropFields'] = processing.run('native:deletecolumn', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         return results
 
     def name(self):

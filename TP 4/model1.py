@@ -27,7 +27,7 @@ class Model1(QgsProcessingAlgorithm):
         #######################################################################
         # Fix geometries
         #######################################################################
-        # Arreglar la geometrías para procesar el shapefile
+        # Arreglar la geometri�as para procesar el shapefile
         alg_params = {
             'INPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/Input/langa/langa.shp',
             'OUTPUT': parameters['Fix_geo']
@@ -42,7 +42,7 @@ class Model1(QgsProcessingAlgorithm):
         #######################################################################
         # Add autoincremental field
         #######################################################################
-        # Le creo un ID para cada país
+        # Le creo un ID para cada pai�s
         alg_params = {
             'FIELD_NAME': 'GID',
             'GROUP_FIELDS': [''],
@@ -65,7 +65,7 @@ class Model1(QgsProcessingAlgorithm):
         # Field calculator
         #######################################################################
         # Creo una columna con el largo de la columna "NAME_PROP" solo para
-        # poder seleccionar según el número de caracteres
+        # poder seleccionar segun el numero de caracteres
         alg_params = {
             'FIELD_LENGTH': 2,
             'FIELD_NAME': 'length',
