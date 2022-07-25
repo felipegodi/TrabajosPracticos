@@ -4,7 +4,9 @@ Name : model1
 Group : 
 With QGIS : 32208
 """
-
+#######################################################################
+# Importamos todos los paquete necesarios para model1
+#######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -28,8 +30,10 @@ class Model1(QgsProcessingAlgorithm):
         results = {}
         outputs = {}
 
+        #######################################################################
         # Warp (reproject)
-        alg_params = {
+        #######################################################################
+        # Proyectar el raster "hdr.adf"        alg_params = {
             'DATA_TYPE': 0,  # Use Input Layer Data Type
             'EXTRA': '',
             'INPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/input/suit/suit/hdr.adf',
@@ -51,7 +55,10 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Drop field(s)
+        #######################################################################
+        # Dropeo columnas que no uso
         alg_params = {
             'COLUMN': ['GID_0','NAME_0','GID_1','GID_2','HASC_2','CC_2','TYPE_2','NL_NAME 2','VARNAME_2','NL_NAME_1','NL_NAME_2',' ENGTYPE_2'],
             'INPUT': 'G:/Mi unidad/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/Clase 4/input/gadm41_USA_shp/gadm41_USA_2.shp',
@@ -63,7 +70,10 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Add autoincremental field
+        #######################################################################
+        # Le creo un ID para cada pais
         alg_params = {
             'FIELD_NAME': 'cid',
             'GROUP_FIELDS': [''],
@@ -82,7 +92,9 @@ class Model1(QgsProcessingAlgorithm):
         if feedback.isCanceled():
             return {}
 
+        #######################################################################
         # Zonal statistics
+        #######################################################################
         alg_params = {
             'COLUMN_PREFIX': '_',
             'INPUT': outputs['AddAutoincrementalField']['OUTPUT'],
