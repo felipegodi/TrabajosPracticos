@@ -1,7 +1,9 @@
 # Modelo para calcular el área de los países
 # Se usa el shp de países: http://www.naturalearthdata.com/downloads/%2010m-cultural-vectors/10m-admin-0-countries/
 
-# Importo paquetes necesarios
+#######################################################################
+# Importamos todos los paquetes necesarios para model4c
+#######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
