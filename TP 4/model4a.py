@@ -4,7 +4,7 @@
 # y también se utiliza el shp de: http://www.naturalearthdata.com/downloads/%2010m-cultural-vectors/10m-admin-0-countries/
 
 #######################################################################
-# Importamos todos los paquete necesarios para model4a
+# Importamos todos los paquetes necesarios para model4a
 #######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
