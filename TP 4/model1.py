@@ -1,5 +1,6 @@
-# Código para preparar el shp de lenguajes
+# Codigo para preparar el shp de lenguajes
 # Se utiliza el archivo langa.shp descargado de: worldgeodatasets.com/language
+
 # Importamos todos los paquete necesarios para model1
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
@@ -27,9 +28,9 @@ class Model1(QgsProcessingAlgorithm):
         #######################################################################
         # Fix geometries
         #######################################################################
-        # Arreglar la geometri�as para procesar el shapefile
+        # Arreglar la geometri­as para procesar el shapefile
         alg_params = {
-            'INPUT': 'C:/Users/felip/Documents/UdeSA/Maestría/Herramientas computacionales/Clase 4/Input/langa/langa.shp',
+            'INPUT': 'C:/Users/felip/Documents/UdeSA/MaestrÃ­a/Herramientas computacionales/Clase 4/Input/langa/langa.shp',
             'OUTPUT': parameters['Fix_geo']
         }
         outputs['FixGeometries'] = processing.run('native:fixgeometries', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
@@ -42,7 +43,7 @@ class Model1(QgsProcessingAlgorithm):
         #######################################################################
         # Add autoincremental field
         #######################################################################
-        # Le creo un ID para cada pai�s
+        # Le creo un ID para cada pai­s
         alg_params = {
             'FIELD_NAME': 'GID',
             'GROUP_FIELDS': [''],
