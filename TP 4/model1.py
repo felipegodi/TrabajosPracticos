@@ -1,7 +1,9 @@
 # Codigo para preparar el shp de lenguajes
 # Se utiliza el archivo langa.shp descargado de: worldgeodatasets.com/language
 
+#######################################################################
 # Importamos todos los paquete necesarios para model1
+#######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
@@ -43,7 +45,7 @@ class Model1(QgsProcessingAlgorithm):
         #######################################################################
         # Add autoincremental field
         #######################################################################
-        # Le creo un ID para cada pai­s
+        # Le creo un ID para cada pais
         alg_params = {
             'FIELD_NAME': 'GID',
             'GROUP_FIELDS': [''],
