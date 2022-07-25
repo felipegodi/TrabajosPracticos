@@ -2,7 +2,7 @@
 # Se utiliza el raster de: https://sage.nelson.wisc.edu/?incdataset=Suitability%20for%20Agriculture
 
 #######################################################################
-# Importamos todos los paquete necesarios para model2
+# Importamos todos los paquetes necesarios para model2
 #######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
