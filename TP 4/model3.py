@@ -4,7 +4,10 @@
 # para los países.
 # Y el raster de: https://dataportaal.pbl.nl/downloads/HYDE/HYDE3.0/
 # en este último link se usan los archivos de 1800, 1900 y 2000.
-# Importo los paquetes necesarios para model3
+
+#######################################################################
+# Importamos todos los paquete necesarios para model3
+#######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
