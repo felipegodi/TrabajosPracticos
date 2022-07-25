@@ -1,6 +1,8 @@
 # Código que calcula la distancia a la costa de los centroides de los países.
 
-# Importar paquetes necesarios para model4b
+#######################################################################
+# Importamos todos los paquetes necesarios para model4b
+#######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
