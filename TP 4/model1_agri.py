@@ -5,7 +5,7 @@ Group :
 With QGIS : 32208
 """
 #######################################################################
-# Importamos todos los paquete necesarios para model1
+# Importamos todos los paquetes necesarios para model1
 #######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
