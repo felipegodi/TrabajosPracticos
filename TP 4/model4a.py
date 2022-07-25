@@ -3,7 +3,9 @@
 # Se utiliza el archivo langa.shp descargado de: worldgeodatasets.com/language
 # y también se utiliza el shp de: http://www.naturalearthdata.com/downloads/%2010m-cultural-vectors/10m-admin-0-countries/
 
-#Importo los paquetes necesarios
+#######################################################################
+# Importamos todos los paquete necesarios para model4a
+#######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
