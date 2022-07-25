@@ -2,7 +2,7 @@
 # Se utiliza el archivo langa.shp descargado de: worldgeodatasets.com/language
 
 #######################################################################
-# Importamos todos los paquete necesarios para model1
+# Importamos todos los paquetes necesarios para model1
 #######################################################################
 from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
