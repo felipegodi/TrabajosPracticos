@@ -14,7 +14,7 @@ library(tmap)
 
 #Configuramos el directorio en el que vamos a trabajar
 setwd("G:\\Mi unidad\\UdeSA Maestria en Economia\\Segundo Trimestre\\Herramientas\\TrabajosPracticos\\TrabajosPracticos\\TP 5")
-
+#setwd("~/Documents/UdeSA/Maestría/Herramientas computacionales/TrabajosPracticos/TP 5")
 
 ## ---- Preparamos los datos ----
 
@@ -94,13 +94,13 @@ qtm(lnd, fill = "CrimeCount", format = "World")
 
 #As a first attempt with ggplot2 we can create a scatter plot with the attribute data in the lnd object created previously:
 
-library(ggplot2)
+#library(ggplot2)
 p <- ggplot(lnd@data, aes(Partic_Per, Pop_2001))
 
 p + geom_point(aes(colour = Partic_Per, size = Pop_2001)) +
   geom_text(size = 2, aes(label = name))
 
-install.packages("broom")
+#install.packages("broom")
 ## ggmap requires spatial data to be supplied as data.frame, using tidy(). The generic plot() function can use Spatial objects directly; ggplot2 cannot. Therefore we need to extract them as a data frame. The tidy function was written specifically for this purpose. For this to work, broom package must be installed.
 lnd_f <- broom::tidy(lnd)
 
@@ -119,6 +119,3 @@ map <- ggplot(lnd_f, aes(long, lat, group = group, fill = Partic_Per)) +
   ggtitle("London Sports Participation")
 map + scale_fill_gradient(low = "white", high = "black")
 map
-
-
-
