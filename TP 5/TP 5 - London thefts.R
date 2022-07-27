@@ -11,14 +11,14 @@ library(rgdal)
 library(dplyr)
 library(ggplot2)
 library(tmap)
+library(broom)
+library(ggpubr)
 
-#Configuramos el directorio en el que vamos a trabajar
-setwd("G:\\Mi unidad\\UdeSA Maestria en Economia\\Segundo Trimestre\\Herramientas\\TrabajosPracticos\\TrabajosPracticos\\TP 5")
+# Configuramos el directorio en el que vamos a trabajar
+#setwd("G:\\Mi unidad\\UdeSA Maestria en Economia\\Segundo Trimestre\\Herramientas\\TrabajosPracticos\\TrabajosPracticos\\TP 5")
 #setwd("~/Documents/UdeSA/Maestría/Herramientas computacionales/TrabajosPracticos/TP 5")
-
+setwd("/Volumes/GoogleDrive/My Drive/UdeSA Maestria en Economia/Segundo Trimestre/Herramientas/TrabajosPracticos/TrabajosPracticos/TP 5")
 ## ---- Preparamos los datos ----
-
-
 # Cargamos el shapefile "london_sport"
 lnd <- readOGR("data/london_sport.shp")
 
@@ -45,77 +45,63 @@ lnd@data <- left_join(lnd@data, crime_ag, by = c('name' = 'Borough'))
 
 
 ## ---- Mapa de thefts con ggplot ----
+#Para poder usar ggplot para armar el mapa, convertimos los datos a un dataframe, usando la función tidy().
+lnd_f <- broom::tidy(lnd)
 
+#Agregamos al dataframe los nombres de los barrios
+lnd$id <- row.names(lnd) # allocate an id variable to the sp data
+lnd_f <- left_join(lnd_f, lnd@data) # join the data
+
+map <- ggplot(lnd_f, aes(long, lat, group = group, fill = CrimeCount)) +
+  geom_polygon(colour="darkgray") + coord_equal() +
+  geom_text(aes(label = name), check_overlap=TRUE, data = lnd_f,  size = 3, hjust = 0.5)+ #ALGO ASI DEBERIAMOS USAR PARA AGREGARLE LAS LABELS, PERO APARECEN FEAS :( PORQUE HAY MUCHAS FILAS CON EL MISMO NAME. CREO QUE DEBERÍAMOS HACER ALGO TIPO COLLAPSE, PERO LE PREGUNTARÍA A AMELIA, intente varias cosas y nada me funcionó. 
+  labs(x = "x", y = "y",
+       fill = "Amount of thefts")
+  #ggtitle("London Thefts")
+
+map + scale_fill_distiller(name="Amount of thefts", 
+                           palette = "Reds", 
+                           direction= +1
+                           #breaks = pretty_breaks()
+                           )+ theme_transparent()
 
 
 
 
 ## ---- Mapa de thefts con tmap ----
 
-tm_shape(lnd) +
-  #tm_style("classic")+
-  tm_polygons("CrimeCount", 
-              #palette = "-RdYlGn",
-              #style = "jenks",
-              n=4,
-              #legend.hist = TRUE #esto sirve para agregar un histograma y ver la distribución de los valores, pero no queda bien
-              )+
-  tm_layout(main.title = "Thefts in London",
-            main.title.position = "center",
-            title.snap.to.legend = TRUE,
-            title = "Amount of thefts by borough",
-            panel.show = FALSE,
-            #bg.color = "grey85", # para setear el color de fondo
-            legend.outside = TRUE,
-            frame = FALSE, #le saco el marco al mapa
-            #legend.hist.height = 0.5, #alto del histograma en la leyenda (lo sacaría) 
-            #legend.hist.width = 1,  #ancho del histograma en la leyenda (lo sacaría)
-            title.position = c("center", "top"))
+tmap_thefts <- tm_shape(lnd) +
+              #tm_style("classic") +                             # esto es para fijar algun estilo para los mapas (sobre todo cuando hacemos muchos mapas y queremos que todos tengan el mismo formato)
+               tm_polygons("CrimeCount", 
+                          palette = "Reds",                      # paleta de colores
+                          #style = "jenks",                      # partición de ls categorías
+                          n=4,                                   # cantidad de categorías preferida
+                          title = "Amount of thefts by borough", # titulo de la leyenda
+                          #legend.hist = TRUE                    # esto sirve para agregar un histograma y ver la distribución de los valores, pero no queda bien
+                          ) +
+               tm_text("name",                                   # agrego las etiquetas a los barrios
+                       size = 0.6,                               # tamaño de la etiqueta. puede ser "AREA" tambien, para que el tamaño de cada etiqueta se ajuste al tamaño del distrito que representa
+                       col = "black",                            # color de la etiqueta
+                       remove.overlap = TRUE,                    # evito que se superpongan
+                       overwrite.lines = TRUE,                   # permito que el nombre se encime con las lineas
+                       shadow = TRUE                             # le agrego el sombreado
+                       ) +
+               tm_layout(#main.title = "Thefts in London",       # lo saco porque vamos a agregarlo en latex
+                         #main.title.size = 3,
+                         #main.title.position = "center",
+                         title.position = c("center", "top"),
+                         #bg.color = "grey85",                   # para setear el color de fondo
+                         legend.outside = TRUE,
+                         #legend.outside.position = "right",
+                         legend.position = c("right", "bottom"),
+                         legend.title.size = 1.3,
+                         legend.text.size = 0.9,
+                         frame = FALSE, #                        # le saco el marco al mapa
+                         #legend.hist.height = 0.5,              # alto del histograma en la leyenda (lo sacaría) 
+                         #legend.hist.width = 1,                 # ancho del histograma en la leyenda (lo sacaría)
+                        )
 
-tmap_mode("view")
+tmap_thefts
 
-qtm(lnd, "CrimeCount") # plot the basic map
-qtm(shp = lnd, 
-    fill = "CrimeCount", 
-    #fill.palette = "OrRd", 
-    fill.title = "Thefts by borough in London",
-    main.title = "AAAAAAAAA",
-    breaks = c(1, 20, 40, 60, 80),
-    legend.hist = TRUE,
-    legend.outside = TRUE,
-    legend.outside.position = "right",
-    ) 
+tmap_save(tmap_thefts, "map1.png")
 
-
-
-tmap_style("cobalt")
-qtm(lnd, fill = "CrimeCount", format = "World")
-
-
-#As a first attempt with ggplot2 we can create a scatter plot with the attribute data in the lnd object created previously:
-
-#library(ggplot2)
-p <- ggplot(lnd@data, aes(Partic_Per, Pop_2001))
-
-p + geom_point(aes(colour = Partic_Per, size = Pop_2001)) +
-  geom_text(size = 2, aes(label = name))
-
-#install.packages("broom")
-## ggmap requires spatial data to be supplied as data.frame, using tidy(). The generic plot() function can use Spatial objects directly; ggplot2 cannot. Therefore we need to extract them as a data frame. The tidy function was written specifically for this purpose. For this to work, broom package must be installed.
-lnd_f <- broom::tidy(lnd)
-
-# This step has lost the attribute information associated with the lnd object. We can add it back using the left_join function from the dplyr package (see ?left_join).
-lnd$id <- row.names(lnd) # allocate an id variable to the sp data
-head(lnd@data, n = 2) # final check before join (requires shared variable name)
-lnd_f <- left_join(lnd_f, lnd@data) # join the data
-
-# The new lnd_f object contains coordinates alongside the attribute information associated with each London Borough. It is now straightforward to produce a map with ggplot2. coord_equal() is the equivalent of asp = T in regular plots with R:
-
-## ----"Map of Lond Sports Participation"-------------------------------
-map <- ggplot(lnd_f, aes(long, lat, group = group, fill = Partic_Per)) +
-  geom_polygon() + coord_equal() +
-  labs(x = "Easting (m)", y = "Northing (m)",
-       fill = "% Sports\nParticipation") +
-  ggtitle("London Sports Participation")
-map + scale_fill_gradient(low = "white", high = "black")
-map
