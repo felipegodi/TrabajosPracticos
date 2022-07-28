@@ -13,6 +13,8 @@ library(ggplot2)
 library(tmap)
 library(broom)
 library(ggpubr)
+library(tidyverse)
+library(shadowtext)
 
 # Configuramos el directorio en el que vamos a trabajar
 #setwd("G:\\Mi unidad\\UdeSA Maestria en Economia\\Segundo Trimestre\\Herramientas\\TrabajosPracticos\\TrabajosPracticos\\TP 5")
@@ -53,24 +55,55 @@ lnd_f <- broom::tidy(lnd)
 lnd$id <- row.names(lnd) # allocate an id variable to the sp data
 lnd_f <- left_join(lnd_f, lnd@data) # join the data
 
-aux <- lnd_f[lnd_f$order == 1, ]
 
+#Algunos pasos para que las etiquetas queden mejor al armar el mapa.
+#En el df a partir del cual vamos a armar el mapa hay muchas observaciones por borough. Esto hace que al poner las etiquetas con ggplot2 aparezcan muchas etiquetas por borough. Lo que hacemos es armar una base auxiliar que calcule la media de lat y long por cada borough (para ubicar la etiqueta cerca del centro) y la media de CrimeCount (dado que para cada borough es igual, no cambia nada calcular la media).
 
+#Para hacer esto, vamos a necesitar pasar a formato numérico las variables que no están en ese formato.
+#Chequeamos cuáles son:
+#sapply(lnd_f, class) 
+
+#Hacemos una copia del df, para trabajar sobre la copia. 
+lnd_copy <- lnd_f
+
+#Transformamos las variables factor y character a numéricas. 
+lnd_copy$piece <- as.numeric(as.factor(lnd_copy$piece))
+lnd_copy$group <- as.numeric(as.factor(lnd_copy$group))
+lnd_copy$id <- as.numeric(as.character(lnd_copy$id))
+lnd_copy$Pop_2001 <- as.numeric(as.character(lnd_copy$Pop_2001))
+lnd_copy$ons_label <- as.numeric(as.character(lnd_copy$ons_label))
+
+#sapply(lnd_copy, class)
+
+#Calculamos la media de todas las variables en este nuevo df transformado:
+mean_vars <- lnd_copy %>% 
+  group_by(name) %>%
+  summarise_all("mean")
 
 map <- ggplot(lnd_f, aes(long, lat, group = group, fill = CrimeCount)) +
-  geom_polygon(colour="darkgray") + coord_equal() +
-  geom_text(aes(label = name), data = aux, check_overlap = TRUE, stat = "identity",position = "identity", size = 3, hjust = 0.5)+ #ALGO ASI DEBERIAMOS USAR PARA AGREGARLE LAS LABELS, PERO APARECEN FEAS :( PORQUE HAY MUCHAS FILAS CON EL MISMO NAME. CREO QUE DEBERÍAMOS HACER ALGO TIPO COLLAPSE, PERO LE PREGUNTARÍA A AMELIA, intente varias cosas y nada me funcionó. 
-  labs(x = "x", y = "y",
-       fill = "Amount of thefts")
-  #ggtitle("London Thefts")
+       geom_polygon(colour="darkgray") + coord_equal() +
+       geom_shadowtext(aes(label = name),                      # qué variable usa para las etiquetas
+                       data = mean_vars,                       # datos que usa para las etiquetas
+                       check_overlap = TRUE,                   # para que las etiquetas no se superpongan  
+                       #stat="identity", position = "identity",                    
+                       size = 3,                               # tamaño          
+                       hjust = 0.5,                            # justificacion horizontal
+                       vjust = 0.5,                            # justificacion vertical
+                       color = "black",                        # color de la etiqueta
+                       bg.color="white") +                     # color de fondo de la etiqueta
+       labs(x = "x", 
+            y = "y",
+            fill = "Amount of thefts")
+    #+ ggtitle("London Thefts")
 
-map + scale_fill_distiller(name="Amount of thefts", 
+map + scale_fill_distiller(name="Amount of thefts by borough", 
                            palette = "Reds", 
                            direction= +1
                            #breaks = pretty_breaks()
                            )+ theme_transparent()
 
-
+#Guardamos el mapa
+ggsave("map2.png")
 
 
 ## ---- Mapa de thefts con tmap ----
