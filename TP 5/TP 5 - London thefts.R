@@ -26,6 +26,7 @@ lnd <- readOGR("data/london_sport.shp")
 crime_data <- read.csv("data/mps-recordedcrime-borough.csv",
                        stringsAsFactors = FALSE)
 
+
 # Nos quedamos con los crimenes "Theft & Handling"
 crime_theft <- crime_data[crime_data$CrimeType == "Theft & Handling", ]
 
@@ -52,9 +53,13 @@ lnd_f <- broom::tidy(lnd)
 lnd$id <- row.names(lnd) # allocate an id variable to the sp data
 lnd_f <- left_join(lnd_f, lnd@data) # join the data
 
+aux <- lnd_f[lnd_f$order == 1, ]
+
+
+
 map <- ggplot(lnd_f, aes(long, lat, group = group, fill = CrimeCount)) +
   geom_polygon(colour="darkgray") + coord_equal() +
-  geom_text(aes(label = name), check_overlap=TRUE, data = lnd_f,  size = 3, hjust = 0.5)+ #ALGO ASI DEBERIAMOS USAR PARA AGREGARLE LAS LABELS, PERO APARECEN FEAS :( PORQUE HAY MUCHAS FILAS CON EL MISMO NAME. CREO QUE DEBERÍAMOS HACER ALGO TIPO COLLAPSE, PERO LE PREGUNTARÍA A AMELIA, intente varias cosas y nada me funcionó. 
+  geom_text(aes(label = name), data = aux, check_overlap = TRUE, stat = "identity",position = "identity", size = 3, hjust = 0.5)+ #ALGO ASI DEBERIAMOS USAR PARA AGREGARLE LAS LABELS, PERO APARECEN FEAS :( PORQUE HAY MUCHAS FILAS CON EL MISMO NAME. CREO QUE DEBERÍAMOS HACER ALGO TIPO COLLAPSE, PERO LE PREGUNTARÍA A AMELIA, intente varias cosas y nada me funcionó. 
   labs(x = "x", y = "y",
        fill = "Amount of thefts")
   #ggtitle("London Thefts")
