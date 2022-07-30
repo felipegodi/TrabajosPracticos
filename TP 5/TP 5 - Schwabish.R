@@ -139,8 +139,44 @@ p5 + scale_fill_brewer(palette="Accent")
 dfn <- subset(HollywoodMovies2013, Genre %in% c("Action","Adventure","Comedy","Drama","Romance")
               & LeadStudio %in% c("Fox","Sony","Columbia","Paramount","Disney"))
 p1 <- ggplot(dfn,aes(Genre,WorldGross)) 
-p1
 p2 <- p1+geom_bar(stat="Identity",aes(fill=LeadStudio),position="dodge")
 p2
 
 # Cambios
+
+dfn <- subset(HollywoodMovies2013, Genre %in% c("Action","Adventure","Comedy","Drama")
+              & LeadStudio %in% c("Fox","Sony","Columbia","Paramount","Disney"))
+
+dfn = dfn %>% arrange(Genre, LeadStudio)
+
+dfn = dfn %>% group_by(Genre) %>% mutate(total = sum(WorldGross))
+dfn = dfn %>% group_by(Genre) %>% mutate(label_y = cumsum(WorldGross))
+dfn =dfn %>% group_by(Genre,LeadStudio) %>% mutate(label_y = total - max(label_y) + 0.1*total)
+
+p1 = ggplot(dfn, aes(x=Genre,y=WorldGross,fill=LeadStudio,label=WorldGross))
+p2 = p1 + geom_bar(stat="identity")
+p3 = p2 + labs(x="",
+               y="",
+               title="World Gross per genre and studio",
+               subtitle="(in millions of dollars)")
+p4 = p3 + scale_fill_discrete(name="") + theme_minimal() + theme(legend.position=c(0.7,0.8))
+p5 = p4 + geom_col() 
+p6 = p5 + geom_text(aes(y = label_y, label=LeadStudio))
+p6
+
+
+p1 = ggplot(dfn, aes(x=Genre,y=WorldGross,fill=LeadStudio,label=WorldGross))
+p2 = p1 + geom_bar(stat="identity")
+p3 = p2 + labs(x="",
+               y="",
+               title="World Gross per genre and studio",
+               subtitle="(in millions of dollars)")
+p4 = p3 + scale_fill_discrete(name="") + theme_minimal() + theme(legend.position=c(0.7,0.8))
+p5 = p4 + annotate("text",label="Sony",x="Action",y=2200,hjust=0.5,vjust=0,family="PermanentMarker-Regular",size=4,color="black") +
+         annotate("text",label="Paramount",x="Action",y=7000,hjust=0.5,vjust=0,family="PermanentMarker-Regular",size=4,color="black") +
+         annotate("text",label="Fox",x="Action",y=13000,hjust=0.5,vjust=0,family="PermanentMarker-Regular",size=4,color="black") +
+         annotate("text",label="Disney",x="Action",y=19000,hjust=0.5,vjust=0,family="PermanentMarker-Regular",size=4,color="black") +
+         annotate("text",label="Columbia",x="Adventure",y=20000,hjust=0.5,vjust=0,family="PermanentMarker-Regular",size=4,color="black") +
+         annotate("curve", x="Action", y=21800, xend="Adventure", yend=21000, color="black", curvature=-0.2,arrow = arrow(length = unit(0.03, "npc")))
+p5 + guides(fill="none")
+
