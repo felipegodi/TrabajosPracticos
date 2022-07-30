@@ -48,9 +48,9 @@ paises2[-1]
 # Me fijo cuantos paises tengo
 count(unique(paises2[1]))
 
-# SOlo hay 8 paises y usa muchas observaciones de un mismo país por lo tanto el histograma no parece lo más
-# acorde para este gráfico. Pueden ser 8 plots distintos mostrando el progreso de los diferentes países o
-# un plot que muestre los 8 juntos. 
+# SOlo hay 7 paises y usa muchas observaciones de un mismo país por lo tanto el histograma no parece lo más
+# acorde para este gráfico. Pueden ser 7 plots distintos mostrando el progreso de los diferentes países o
+# un plot que muestre los 7 juntos. 
 
 paises3 = paises %>% filter(Year > 1979)
 
@@ -144,26 +144,16 @@ p2
 
 # Cambios
 
+# Tomo los mismos que arriba menos romance
 dfn <- subset(HollywoodMovies2013, Genre %in% c("Action","Adventure","Comedy","Drama")
               & LeadStudio %in% c("Fox","Sony","Columbia","Paramount","Disney"))
 
+# Hasta el 156 es un intento fallido de agregar los labels de otra manera
 dfn = dfn %>% arrange(Genre, LeadStudio)
 
 dfn = dfn %>% group_by(Genre) %>% mutate(total = sum(WorldGross))
 dfn = dfn %>% group_by(Genre) %>% mutate(label_y = cumsum(WorldGross))
 dfn =dfn %>% group_by(Genre,LeadStudio) %>% mutate(label_y = total - max(label_y) + 0.1*total)
-
-p1 = ggplot(dfn, aes(x=Genre,y=WorldGross,fill=LeadStudio,label=WorldGross))
-p2 = p1 + geom_bar(stat="identity")
-p3 = p2 + labs(x="",
-               y="",
-               title="World Gross per genre and studio",
-               subtitle="(in millions of dollars)")
-p4 = p3 + scale_fill_discrete(name="") + theme_minimal() + theme(legend.position=c(0.7,0.8))
-p5 = p4 + geom_col() 
-p6 = p5 + geom_text(aes(y = label_y, label=LeadStudio))
-p6
-
 
 p1 = ggplot(dfn, aes(x=Genre,y=WorldGross,fill=LeadStudio,label=WorldGross))
 p2 = p1 + geom_bar(stat="identity")
