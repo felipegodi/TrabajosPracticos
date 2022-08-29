@@ -12,4 +12,5 @@
 4️⃣ TP4: QGIS + Python modelling.    
 5️⃣ TP5: Gráficos y mapas en R (ggplot2 y tmap) y Stata (spmap).   
 6️⃣ TP6: QGIS. Georeferenciación y cálculo de distancias.
+
 TP final: QGIS + R + Stata.
